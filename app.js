@@ -2,33 +2,62 @@ const express = require('express');
 const cors=require('cors');
 const Mongoose  = require('mongoose');
 const app=express();
+const multer=require('multer');
+const upload = multer({ dest: 'uploads/' })
+const csvmodel=require('./model/csvtomodel.js');
+const products=require('./controller/products');
+const userRoute=require('./routes/userRoute');
+const {check}=require('express-validator');
 
 app.use(cors());
-app.use(express.json() );
-app.use((req,res,next)=>{
+ app.use(express.json() );
+/* app.use((req,res,next)=>{
     res.setHeader('Accept-Control-Allow-Origin','*' );
     res.setHeader('Access-Control-Allow-Headers','X-Auth-Token,Origin,X-Requested-With','Content-Type','Accept','Authorization')
     res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
-    next()
-});
+    next();
+}); */
+/* app.use(); */
 app.use((req,res,next)=>{ 
-    console.log("receiver request",req.url," method:",req.method,req.body);next()} );
-const csvfile=require('./model/csvtomodel.js');
-app.get('/csv',csvfile.get);
-app.use((req,res,next)=>{
-    const error=new Error("wrong",401);
-    throw error;
+    console.log("receiver request",req.url," method:",req.method);
+    next()});
+app.use('/users',[
+                    check('email').normalizeEmail().isEmail(),
+                    check('password').not().isEmpty().isLength ({min:3}),
+                    ],
+                    userRoute);
+
+app.post('/products', upload.single('file'),
+   async function(req,res,next){ 
+        console.log("Receive product file:" );
+       if(!req.file){console.log("no file ");
+            res.status(400).json("no file ");
+            return
+        }
+    const path=req.file.path;
+    console.log(path,"path");
+    csvmodel.csvjson(path);
+    // csvmodel.fastcsvTo(path);
+        }    );
+//app.get('/csv',csvmodel.get);
+app.get('/products',products.getProducts);
+
+app.use((error, req,res,next)=>{ //唯一的要有error在最前面的，对所有的错误的反应。
+    if (req.file){fs.unlink(req.file.path,(err)=>{console.log (err)}) };
+    if (res.headersSent){ //注意是headers
+        //console.log('more error');
+       return next (error);
+    };
+    console.log(error,"app.js");
+    res.status(error.code||500).json({message: error.message || 'An unknown error occurred!'})
 });
 
 
-app.use((error, req,res,next)=>{
-
-})
 const uri = "mongodb+srv://sharp:supersharp@cluster0.zt01z.mongodb.net/webstore?retryWrites=true&w=majority";
 try{
     Mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     app.listen(5000);
-
-}catch(err){console.log("mongoDB connection fail",err )
-return err}
-
+    }
+catch(err){console.log("mongoDB connection fail",err );
+} 
+ 
