@@ -6,24 +6,75 @@ const {body,check,validationResult}=require('express-validator');
 const bcrypt=require('bcrypt');
 const jwt=require('jsonwebtoken');
 const checkToken = require('../middleWare/checkToken');
+const req = require('express/lib/request');
 const tokenSalt="notAbackKey_noWorry";
-
-const getUser=(req,res,next)=>{
-    console.log(req.body);
-    res.status(400).json("email ");
+/*     const token=req.headers.authorization;
+    if (!token){
+        const error=new Error ("token not found");
+        next (error);
+    }
+    try { 
+        const decodedToken=jwt.verify(token, tokenSalt);
+        req.userData={email:decodedToken.email};
+        console.log("decoded",decodedToken)
+    }
+    catch(err){
+        console.log(err, "token verify fail ");
+        const error=new Error ("token Verify Fail");
+        return next (error);
+    } */
+const checkAuth=(req,res,next)=>{
+    console.log("checking")
+        const token=req.headers.authorization
+//    console.log(req.headers, token, "checkauth")
+    if (!token){
+        const error=new Error("token not found")
+            error.code=444
+           return next (error)
+      }
+   try{ const decodedToken=jwt.verify(token,tokenSalt);
+    console.log("decode",decodedToken.email)
+    req.userData={email:decodedToken.email}
+    next()
+    //add userData into req. so next function can take the email out.
 }
+    catch(err){console.log(err);
+            const error=new Error("token verify fail")
+            error.code=444
+            return next (error)
+        }
+}
+const getUser=async (req,res,next)=>{
+  //  router.use(checkAuth);
+    console.log('req auth',req.userData);
+    const email=req.userData.email
+     console.log('req.body',email);
+   const user=await User.findOne({email:email})
+    const userInfo=user.userInfo
+    res.status(200).json({
+        message:"retrieve user Information successfully",
+        userInfo:userInfo
+    })    
+    console.log(user,"user")
+    } ;
+
+
+
+
 const login=async (req,res,next) =>{
     console.log("REQ", req.body);
     const {email,password}=req.body;
     let loginUser;
     try {loginUser=await User.findOne({email:email});}
     catch (err){
-       const error =new Error ("internal error, faile to check user");
-       next (error);
+       const error =new Error ("can not find user");
+       error.code=303
+      return next (error);
     }
     
     if (!loginUser){
         error =new Error ("This user/email not registered")
+        error.code=301
         return next(error)
     }
     let isPasswordValid;
@@ -31,35 +82,38 @@ const login=async (req,res,next) =>{
         isPasswordValid=await bcrypt.compare(password,loginUser.password);
         if (!isPasswordValid){
             const error =new Error ("invalid password, please try again");
-            next (error);
+            error.code=305
+           return next (error);
         }
     }    
     catch (err){
         const error =new Error ("password error, login faile");
-        next (error);
+        return next (error);
     }
     let token;
     try {
-        token = await jwt.sign({
+        token = jwt.sign({
             email:email},
             tokenSalt,
             {expiresIn:"1h"}
         )
     }catch(err){
         const error =new Error ("password error, login faile");
-        next (error);
+        return next (error);
     }
+    const {userName}=loginUser.userName
     res.status(200).json({
         message:"welcom back",
-        email:email,
-        token:token
+        token:token,
+        userName:userName,
     })
 }
 
 const singupUser=async (req,res,next)=>{
     console.log("signning",req.body);
 //Validation;with express-validation module;
-    const error=validationResult(req.body); //work with check in app,js;
+    const error=validationResult(req.body); 
+    //work with check in app,js;
     if (!error.isEmpty()){
         let errorMessages=error.errors.map((e)=>{
             return "check:"+e.param+" : "+e.value;});
@@ -69,13 +123,13 @@ const singupUser=async (req,res,next)=>{
            return next( new Error('chek invalid input',402));
     }
     //check email registered?
-    const {name,email,password}=req.body;
+    const {userName,email,password}=req.body;
     let isRegistered;
-    try{isRegistered=await User.findOne({email:email})}
+    try{isRegistered=await User.findOne({email:email});console.log ("pass")}
     catch(err){
         console.error(err); 
         const error=new Error("registed email");
-        next (error);
+        return next (error);
         }
     if(isRegistered)   {
         res.json("email already registered")
@@ -91,9 +145,9 @@ let hashPassowrd;
         return next(error)
     }
     const newUser=new User({
-        name,email,password:hashPassowrd
+        userName,email,password:hashPassowrd
     }) ;
-    try{  await newUser.save();
+    try{  await newUser.save(); console.log("saved new user")
     }
     catch(err){
         console.log("error",err)
@@ -119,40 +173,35 @@ let hashPassowrd;
     res.status(200).json({
         message:`welcom new User`,
         email:email,
+        userName:userName,
         token:token, //send back a token for auth.
         });
+        console.log("success signup")
     }; 
 const updateUser=async (req,res,next)=>{
     //update address.
-/*     const token=req.headers.authorization;
-    if (!token){
-        const error=new Error ("token not found");
-        next (error);
-    }
-    try { 
-        const decodedToken=jwt.verify(token, tokenSalt);
-        req.userData={email:decodedToken.email};
-        console.log("decoded",decodedToken)
-    }
-    catch(err){
-        console.log(err, "token verify fail ");
-        const error=new Error ("token Verify Fail");
-        return next (error);
-    } */
+    //console.log(req.userData,req.body,"goupdate")
     const email=req.userData.email;
     console.log(email,"tokenemail",req.body);
     const user=await User.findOne({email:email});
-    user.address=JSON.stringify(req.body.address);
+    for (let i in req.body.address){
+        user.userInfo[i]=req.body.address[i]
+ //       console.log(user.userInfo[i])
+    };
     await user.save();
-    console.log(user)
-
-    res.json("hi, "+email)
+    res.status(200).json({
+        message:`User information updated`})
 }
-
-//router.use(checkToken);
-router.get('/email',getUser);
-router.put('/update', updateUser);
+const test=async (req,res,next)=>{
+    console.log(process.env.T,process.env.test)
+    res.status(200).json({
+        message:`test successfully`})
+}
 router.post('/signup',mulForm.single(), singupUser);
 router.post('/login',login);
+router.post ('/test',test);
+router.get('/getUser',getUser);
+router.put('/updateUser', updateUser);
+
 
 module.exports=router;

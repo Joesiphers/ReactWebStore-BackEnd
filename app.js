@@ -8,16 +8,27 @@ const csvmodel=require('./model/csvtomodel.js');
 const products=require('./controller/products');
 const userRoute=require('./routes/userRoute');
 const {check}=require('express-validator');
+const res = require('express/lib/response');
 
 app.use(cors());
  app.use(express.json() );
-/* app.use((req,res,next)=>{
-    res.setHeader('Accept-Control-Allow-Origin','*' );
-    res.setHeader('Access-Control-Allow-Headers','X-Auth-Token,Origin,X-Requested-With','Content-Type','Accept','Authorization')
-    res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
+//  app.use((req,res,next)=>{
+//     res.setHeader('Accept-Control-Allow-Origin','*' );
+//     res.setHeader('Access-Control-Allow-Headers','X-Auth-Token,Origin,X-Requested-With','Content-Type','Accept','Authorization')
+//     res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
+//     next();})
+
+/* app.use(); 
+app.all('*', function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "X-Requested-With");
+    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    res.header("X-Powered-By",' 3.2.1')
+    res.header("Content-Type", "application/json;charset=utf-8");
     next();
-}); */
-/* app.use(); */
+});
+*/
+
 app.use((req,res,next)=>{ 
     console.log("receiver request",req.url," method:",req.method);
     next()});
@@ -52,6 +63,9 @@ app.use((error, req,res,next)=>{ //唯一的要有error在最前面的，对所�
     res.status(error.code||500).json({message: error.message || 'An unknown error occurred!'})
 });
 
+process.env.test="hahaha"
+process.env.DB_USERNAME
+process.env.DB_PASSWORD
 
 const uri = "mongodb+srv://sharp:supersharp@cluster0.zt01z.mongodb.net/webstore?retryWrites=true&w=majority";
 try{
@@ -59,5 +73,8 @@ try{
     app.listen(5000);
     }
 catch(err){console.log("mongoDB connection fail",err );
+    res.status(408) .json({message:"mongoose conection fail",
+    error:err
+})
 } 
  
