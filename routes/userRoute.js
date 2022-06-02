@@ -55,8 +55,6 @@ const getUser=async (req,res,next)=>{
     userinfo:user.userinfo};
    // console.log(resp,"user")
     res.status(200).json(resp);
-    
-
 }
     catch(err) { 
        return next (err)
@@ -100,13 +98,13 @@ const login=async (req,res,next) =>{
             {expiresIn:"1h"}
         )
     }catch(err){
-        const error =new Error ("password error, login faile");
+        const error =new Error ("gen token error");
         return next (error);
     }
     const uname=loginUser.username
     console.log(loginUser,"username",uname)
     res.status(200).json({
-        message:"welcom back",
+        message:"welcom back"+uname,
         token:token,
         username:uname,
         email:email
@@ -129,16 +127,21 @@ const singupUser=async (req,res,next)=>{
     //check email registered?
     const {username,email,password}=req.body;
     let isRegistered;
-    try{isRegistered=await User.findOne({email:email});console.log ("pass")}
+    try{isRegistered=await User.findOne({email:email});
+    //console.log ("pass")
+        if(isRegistered) {
+        const error=new Error("email already registered");
+        error.code=440
+        return next (error)
+    }
+}
     catch(err){
         console.error(err); 
-        const error=new Error("registed email");
+        const error=new Error("email check fail");
+        error.code=440
         return next (error);
         }
-    if(isRegistered)   {
-        res.json("email already registered")
-        return
-    }
+
     //hash password to hash
 
 let hashPassowrd;
@@ -197,7 +200,7 @@ const updateUser=async (req,res,next)=>{
     //     console.log(user.username,"update username 1",userinfo.username)
   
     // }else{}
-    Object.assign(user.userinfo,req.body.userinfo)
+    Object.assign(user.userinfo,userinfo)
        // console.log(i, user[i],req.body.userinfo[i])
     ;
    // console.log(user.userinfo,"after asign",user)
