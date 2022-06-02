@@ -64,8 +64,7 @@ app.use((error, req,res,next)=>{ //唯一的要有error在最前面的，对所�
 });
 
 process.env.test="hahaha"
-const PORT=process.env.PORT
-process.env.DB_PASSWORD
+const PORT=process.env.PORT||5000
 
 const uri = "mongodb+srv://sharp:supersharp@cluster0.zt01z.mongodb.net/webstore?retryWrites=true&w=majority";
 try{

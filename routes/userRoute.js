@@ -15,7 +15,7 @@ const tokenSalt="notAbackKey_noWorry";
     }
     try { 
         const decodedToken=jwt.verify(token, tokenSalt);
-        req.userData={email:decodedToken.email};
+        req.userdata={email:decodedToken.email};
         console.log("decoded",decodedToken)
     }
     catch(err){
@@ -34,9 +34,9 @@ const checkAuth=(req,res,next)=>{
       }
    try{ const decodedToken=jwt.verify(token,tokenSalt);
     console.log("decode",decodedToken.email)
-    req.userData={email:decodedToken.email}
+    req.userdata={email:decodedToken.email}
     next()
-    //add userData into req. so next function can take the email out.
+    //add userdata into req. so next function can take the email out.
 }
     catch(err){console.log(err);
             const error=new Error("token verify fail")
@@ -46,20 +46,22 @@ const checkAuth=(req,res,next)=>{
 }
 const getUser=async (req,res,next)=>{
   //  router.use(checkAuth);
-    console.log('req auth',req.userData);
-    const email=req.userData.email
-     console.log('req.body',email);
-   const user=await User.findOne({email:email})
-    const userInfo=user.userInfo
-    res.status(200).json({
-        message:"retrieve user Information successfully",
-        userInfo:userInfo
-    })    
-    console.log(user,"user")
+    console.log('getuser',req.userdata);
+   try{  const email=req.userdata.email
+    
+    const user=await User.findOne({email:email})
+   // console.log('req.body',user.userinfo);
+    const resp={message:"retrieve user Information successfully",
+    userinfo:user.userinfo};
+   // console.log(resp,"user")
+    res.status(200).json(resp);
+    
+
+}
+    catch(err) { 
+       return next (err)
+    }
     } ;
-
-
-
 
 const login=async (req,res,next) =>{
     console.log("REQ", req.body);
@@ -101,11 +103,13 @@ const login=async (req,res,next) =>{
         const error =new Error ("password error, login faile");
         return next (error);
     }
-    const {userName}=loginUser.userName
+    const uname=loginUser.username
+    console.log(loginUser,"username",uname)
     res.status(200).json({
         message:"welcom back",
         token:token,
-        userName:userName,
+        username:uname,
+        email:email
     })
 }
 
@@ -123,7 +127,7 @@ const singupUser=async (req,res,next)=>{
            return next( new Error('chek invalid input',402));
     }
     //check email registered?
-    const {userName,email,password}=req.body;
+    const {username,email,password}=req.body;
     let isRegistered;
     try{isRegistered=await User.findOne({email:email});console.log ("pass")}
     catch(err){
@@ -145,7 +149,7 @@ let hashPassowrd;
         return next(error)
     }
     const newUser=new User({
-        userName,email,password:hashPassowrd
+        username,email,password:hashPassowrd
     }) ;
     try{  await newUser.save(); console.log("saved new user")
     }
@@ -173,22 +177,33 @@ let hashPassowrd;
     res.status(200).json({
         message:`welcom new User`,
         email:email,
-        userName:userName,
+        username:username,
         token:token, //send back a token for auth.
         });
         console.log("success signup")
     }; 
 const updateUser=async (req,res,next)=>{
+  //  console.log("go update")
     //update address.
-    //console.log(req.userData,req.body,"goupdate")
-    const email=req.userData.email;
-    console.log(email,"tokenemail",req.body);
+    console.log(req.userdata,"goupdate",req.body.userinfo,)
+    const email=req.userdata.email;
+   // console.log(email,"tokenemail",req.body);
     const user=await User.findOne({email:email});
-    for (let i in req.body.address){
-        user.userInfo[i]=req.body.address[i]
- //       console.log(user.userInfo[i])
-    };
+    if (!user){throw new Error("user not found")}
+    const userinfo=req.body.userinfo
+    //console.log(user.username, userinfo,"before asign")
+    // if (userinfo.username!=''){
+    //     user.username=userinfo.username
+    //     console.log(user.username,"update username 1",userinfo.username)
+  
+    // }else{}
+    Object.assign(user.userinfo,req.body.userinfo)
+       // console.log(i, user[i],req.body.userinfo[i])
+    ;
+   // console.log(user.userinfo,"after asign",user)
     await user.save();
+    //console.log(user.username,"update username",userinfo.username)
+    console.log(user)
     res.status(200).json({
         message:`User information updated`})
 }
@@ -200,8 +215,9 @@ const test=async (req,res,next)=>{
 router.post('/signup',mulForm.single(), singupUser);
 router.post('/login',login);
 router.post ('/test',test);
-router.get('/getUser',getUser);
-router.put('/updateUser', updateUser);
+router.use(checkAuth)
+router.get('/getuser',getUser);
+router.put('/update', updateUser);
 
 
 module.exports=router;
