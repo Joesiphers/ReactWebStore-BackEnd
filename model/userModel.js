@@ -1,7 +1,6 @@
 const mongoose=require('mongoose');
 //const uniqueValidator=require('mongoose-')
 const userSchema=new mongoose.Schema({
-    uname:{type:String},
     email:{type:String,required:true},
     password:{type:String,required:true,minlength:3},
     image:{type:String},
