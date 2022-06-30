@@ -68,13 +68,13 @@ const login=async (req,res,next) =>{
     try {loginUser=await User.findOne({email:email});}
     catch (err){
        const error =new Error ("can not find user");
-       error.code=303
+       error.code=403
       return next (error);
     }
     
     if (!loginUser){
         error =new Error ("This user/email not registered")
-        error.code=301
+        error.code=401
         return next(error)
     }
     let isPasswordValid;
@@ -82,7 +82,7 @@ const login=async (req,res,next) =>{
         isPasswordValid=await bcrypt.compare(password,loginUser.password);
         if (!isPasswordValid){
             const error =new Error ("invalid password, please try again");
-            error.code=305
+            error.code=405
            return next (error);
         }
     }    
@@ -138,7 +138,7 @@ const singupUser=async (req,res,next)=>{
     catch(err){
         console.error(err); 
         const error=new Error("email check fail");
-        error.code=440
+        error.code=441
         return next (error);
         }
 
