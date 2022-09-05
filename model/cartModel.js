@@ -1,7 +1,12 @@
 const mongoose=require('mongoose');
-
+const Schema=mongoose.Schema
 const cartSchema=new mongoose.Schema({
-    creator:{type:String,required:true},
-    items:{types:Array,required:true},
+    //email from userModel  schema export as "Users"
+    buyer:{type:Schema.Types.ObjectId,required:true,ref:"Users"},
+    pid:{type:Schema.Types.ObjectId,required:true,ref:"Products"},
+    sku:{type:String,required:true},
+    quantity:{type:Number,required:true},
+    size:{type:String, required:true},
+    price:{type:Number}
 })
-module.exports=mongoose.model("cart", cartSchema);
+module.exports=mongoose.model("Carts", cartSchema);

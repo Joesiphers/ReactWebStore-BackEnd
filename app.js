@@ -5,8 +5,9 @@ const app=express();
 const multer=require('multer');
 const upload = multer({ dest: 'uploads/' })
 const csvmodel=require('./model/csvtomodel.js');
-const products=require('./controller/products');
+const productRoute=require('./routes/productRoute')
 const userRoute=require('./routes/userRoute');
+const cartRoute=require('./routes/cartRoute')
 const {check}=require('express-validator');
 const res = require('express/lib/response');
 
@@ -51,8 +52,8 @@ app.post('/products', upload.single('file'),
     // csvmodel.fastcsvTo(path);
         }    );
 //app.get('/csv',csvmodel.get);
-app.get('/products',products.getProducts);
-
+app.use('/product',productRoute);
+app.use('/cart',cartRoute)
 app.use((error, req,res,next)=>{ //唯一的要有error在最前面的，对所有的错误的反应。
     if (req.file){fs.unlink(req.file.path,(err)=>{console.log (err)}) };
     if (res.headersSent){ //注意是headers

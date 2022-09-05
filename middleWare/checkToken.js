@@ -1,7 +1,6 @@
 const jwt=require('jsonwebtoken');
 const tokenSalt="notAbackKey_noWorry";
 
-
 async function checkToken (req,res,next){
     const token=req.headers.authorization;
     if (!token){

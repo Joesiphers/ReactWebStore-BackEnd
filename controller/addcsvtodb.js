@@ -1,26 +1,26 @@
 const Product=require('../model/productModel')
 
-const addArraytodb= (data)=>{
-    console.log(data);
+const objArraytodb= (data)=>{
+    //console.log(data);
     data.forEach(async i=>{
-        const{id,sku,title,description,style,price,
-        installments, currencyId,currencyFormat,isFreeShipping}=i;
-        let availableSizes=i.availableSizes.replace(/\"/g,"").split(",");
-        console.log(availableSizes,"size");
-        const record=new Product({
-            id,sku,title,description,availableSizes,style,price,
+        const{pid,sku,title,description,style,price,size,
+        installments, currencyId,currencyFormat,isFreeShipping,availableSizes}=i;
+        //let available=toString(availableSizes).replace(/\"/g,"").split(",");
+        //console.log(available,"size");
+        const record=new Product({ 
+            pid,sku,title,description,availableSizes,style,price,size,
             installments, currencyId,currencyFormat,isFreeShipping,
         });
-        console.log(record,"new product");
+        //console.log(record,"new product");
        try{ await record.save();}
        catch(err){console.log(err) }
         })
 }
-exports.addArraytodb=addArraytodb;
-
+exports.objArraytodb=objArraytodb;
+/**turn obj file to mongoDB ?  */
 const addObjTodb=async (obj)=>{
     const product={...obj, 
-        availableSizes:i.availableSizes.replace(/\"/g,"").split(",")
+        availableSizes:obj.availableSizes.replace(/\"/g,"").split(",")
     }
     const newProduct=new Product(product);
     try{ await newProduct.save();

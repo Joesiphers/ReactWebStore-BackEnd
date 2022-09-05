@@ -1,12 +1,12 @@
 const mongoose=require(`mongoose`);
 
 const productSchema=new mongoose.Schema({
-    id:{type:Number,required:true},
-    sku:{type:Number,required:true},
+    pid:{type:Number,required:true},
+    sku:{type:String,required:true},
     title:{type:String,required:true},
     description:{type:String},
     availableSizes:{type:Array},
-    Sizes:{type:Array},
+    size:{type:String,required:true},
     style:{type:String},
     price:{type:Number,required:true},
     installments:{type:Number},

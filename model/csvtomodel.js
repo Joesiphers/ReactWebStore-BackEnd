@@ -13,7 +13,8 @@ let products= list.products;//get the product array
 
 const get=(req,res)=>{
     /**convert json to csv */
-    var fields=Object.keys(productModel.schema.obj);//retriev the mongoose model's keys
+    var fields=Object.keys(productModel.schema.obj);
+    //retriev the mongoose model's keys
     console.log (fields);
     //create parser and data format as field==>unwind not necessory,unwind:["id","sku"]}.
     const {Parser} = require('json2csv');
@@ -25,7 +26,7 @@ const get=(req,res)=>{
     res.send(csv); */
     res.status(200 ).json("get the file");
 }
-exports.get=get;
+
 const fastcsvTo= (csvfile,res)=>{
     console.log("read the file");
     fs.createReadStream(csvfile)
@@ -47,7 +48,9 @@ exports.fastcsvTo=fastcsvTo;
 const csvjson= (csvfile)=>{
     console.log("read the file");
     /*use csvtojson transfer csv file to a array contain json record */
-/*csvtojson [ { id: '12',sku: '12064273040195392', ..., isFreeShipping: 'true' },...]*/
+/*csvtojson 
+[ { id: '12',sku: '12064273040195392', ..., isFreeShipping: 'true' },...]
+*/
 
     csv().fromFile(csvfile).then(
         json=>{
@@ -57,7 +60,7 @@ const csvjson= (csvfile)=>{
 /*csvtojson [ { id: '12',sku: '12064273040195392', ..., isFreeShipping: 'true' },...]*/
 }
 exports.csvjson=csvjson;
-
+exports.get=get;
 
 
 /*var fields=[]*/

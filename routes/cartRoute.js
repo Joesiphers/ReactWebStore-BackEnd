@@ -1,13 +1,13 @@
 const express=require('express');
-const router=express.Router();
-const Cart=require('../model/userModel');
-
-router.use('cart',decodeToken);
-router.post('cart',addItems);
-router.delete('cart',removeItems);
-
-const addItems=(req,res,next)=>{
-
-}
-
-
+const cartRouter=express.Router();
+const checkAuth=require('../middleWare/checkToken')
+const cartController=require('../model/cartController')
+/*cartRouter.use((req,res,next)=>{
+    console.log("req-body", req.body)
+    next()
+})*/
+cartRouter.get('/search', cartController.search)
+cartRouter.use(checkAuth)
+cartRouter.get('/get_cart', cartController.getCart)
+cartRouter.post('/add_item', cartController.addItem)
+module.exports=cartRouter;
