@@ -24,9 +24,8 @@ const tokenSalt="notAbackKey_noWorry";
 
 const getUser=async (req,res,next)=>{
   //  router.use(checkAuth);
-    console.log('getuser',req.userdata);
-   try{  const email=req.userdata.email
-    
+    console.log('getuser',req.userData);
+   try{  const email=req.userData.email
     const user=await Users.findOne({email:email})
    // console.log('req.body',user.userinfo);
     const resp={message:"retrieve user Information successfully",

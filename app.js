@@ -8,6 +8,7 @@ const csvmodel=require('./model/csvtomodel.js');
 const productRoute=require('./routes/productRoute')
 const userRoute=require('./routes/userRoute');
 const cartRoute=require('./routes/cartRoute')
+const orderRoute=require('./routes/orderRoute')
 const {check}=require('express-validator');
 const res = require('express/lib/response');
 
@@ -19,17 +20,6 @@ app.use(cors());
 //     res.setHeader('Access-Control-Allow-Methods','GET,POST,PUT,PATCH,DELETE');
 //     next();})
 
-/* app.use(); 
-app.all('*', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By",' 3.2.1')
-    res.header("Content-Type", "application/json;charset=utf-8");
-    next();
-});
-*/
-
 app.use((req,res,next)=>{ 
     console.log("receiver request",req.url," method:",req.method);
     next()});
@@ -39,7 +29,7 @@ app.use('/users',[
                     ],
                     userRoute);
 
-app.post('/products', upload.single('file'),
+app.post('/product_file', upload.single('file'),
    async function(req,res,next){ 
         console.log("Receive product file:" );
        if(!req.file){console.log("no file ");
@@ -51,9 +41,9 @@ app.post('/products', upload.single('file'),
     csvmodel.csvjson(path);
     // csvmodel.fastcsvTo(path);
         }    );
-//app.get('/csv',csvmodel.get);
 app.use('/product',productRoute);
 app.use('/cart',cartRoute)
+app.use('/order',orderRoute)
 app.use((error, req,res,next)=>{ //唯一的要有error在最前面的，对所有的错误的反应。
     if (req.file){fs.unlink(req.file.path,(err)=>{console.log (err)}) };
     if (res.headersSent){ //注意是headers

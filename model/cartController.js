@@ -12,12 +12,12 @@ const getCart=async (req,res,next)=>{
                             {buyer:user})
                             .populate('pid','price pid')
                     //field cart need to be found on another Model
-    console.log(userCart,"USER carts found")
+ //   console.log(userCart,"USER carts found")
     userCart.forEach(item=>{
         item.price=item.pid.price
     }
         )
-        console.log(userCart)
+        //console.log(userCart)
     res.status(200).json(
         //cart
         //message"OK"
@@ -33,13 +33,11 @@ const addItem=async (req,res,next)=>{
 /**following will save two pointers in Users.cart[] and Cart.buyer */
     let newCartData;
     try {
-        console.log(sku)
         let record = await Carts.findOne({
             buyer:user.id
             //search this user have items in cart?
         })
         if (!record){ //no record, just add in
-            console.log("no record of",user.id)
             newCartData=new Carts({
                 buyer:user._id,
                 pid:product._id,
@@ -80,7 +78,7 @@ const addItem=async (req,res,next)=>{
         .then(res=>{
             saved.price=res.price
             saved.size="L"
-            console.log("saved", saved.price)}
+        }
             )
         res.status(200).json(
             saved

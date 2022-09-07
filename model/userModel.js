@@ -10,7 +10,7 @@ const userSchema=new mongoose.Schema({
         username:{type:String},
         firstName:{type:String},
         lastName:{type:String},        
-        number:{type:String},
+        streetNumber:{type:String},
         secondLine:{type:String},
         suburb:{type:String},
         state:{type:String},
