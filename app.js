@@ -46,6 +46,9 @@ app.use('/product',productRoute);
 app.use('/cart',cartRoute)
 app.use('/order', orderRoute)
 app.use('/favor', favorRoute)
+app.use('/test',res.status(408) .json({message:"test rest",
+    
+        }))
 app.use((error, req,res,next)=>{ //唯一的要有error在最前面的，对所有的错误的反应。
     if (req.file){fs.unlink(req.file.path,(err)=>{console.log (err)}) };
     if (res.headersSent){ //注意是headers
