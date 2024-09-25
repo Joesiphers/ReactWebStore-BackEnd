@@ -47,8 +47,10 @@ app.use('/cart',cartRoute)
 app.use('/order', orderRoute)
 app.use('/favor', favorRoute)
 */
+app.use('/product',productRoute);
 const test =require('./routes/test');
 app.use('/test',test)
+app.use('/',test)
 app.use((error, req,res,next)=>{ //唯一的要有error在最前面的，对所有的错误的反应。
     if (req.file){fs.unlink(req.file.path,(err)=>{console.log (err)}) };
     if (res.headersSent){ //注意是headers
@@ -64,7 +66,7 @@ const PORT=process.env.PORT||5000
 const pass='TQ6yb5nfakuJkWHy'
 const uri = `mongodb+srv://sharp:${pass}@cluster0.zt01z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 try{
-    //Mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+    Mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     app.listen(PORT);
     }
 catch(err){console.log("mongoDB connection fail",err );
