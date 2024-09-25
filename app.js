@@ -58,15 +58,18 @@ app.use((error, req,res,next)=>{ //唯一的要有error在最前面的，对所�
 
 process.env.test="hahaha"
 const PORT=process.env.PORT||5000
-
-const uri = "mongodb+srv://sharp:supersharp@cluster0.zt01z.mongodb.net/webstore?retryWrites=true&w=majority";
+const pass='TQ6yb5nfakuJkWHy'
+const uri = `mongodb+srv://sharp:${pass}@cluster0.zt01z.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 try{
     Mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
     app.listen(PORT);
     }
 catch(err){console.log("mongoDB connection fail",err );
-    res.status(408) .json({message:"mongoose conection fail",
+    //app.listen(PORT);
+    //app.us('/', 
+        res.status(408) .json({message:"mongoose conection fail",
     error:err
-})
+        })
+    //)
 } 
  
