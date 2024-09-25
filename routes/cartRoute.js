@@ -10,4 +10,7 @@ cartRouter.get('/search', cartController.search)
 cartRouter.use(checkAuth)
 cartRouter.get('/get_cart', cartController.getCart)
 cartRouter.post('/add_item', cartController.addItem)
+cartRouter.post('/quantity_change', cartController.quantityChange)
+cartRouter.post('/remove_item', cartController.removeItem)
+
 module.exports=cartRouter;

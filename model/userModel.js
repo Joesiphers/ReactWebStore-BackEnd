@@ -6,6 +6,7 @@ const userSchema=new mongoose.Schema({
     password:{type:String,required:true,minlength:3},
     image:{type:String},
     cart:[{type:Schema.Types.ObjectId, ref:"Carts"}],
+    favor:[{type:Number}],
     userinfo:{
         username:{type:String},
         firstName:{type:String},

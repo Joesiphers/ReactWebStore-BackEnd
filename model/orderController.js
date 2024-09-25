@@ -4,7 +4,7 @@ const Users=require('./userModel')
 const create=async (req,res,netx)=>{
     const user=await Users.findOne({email:req.userData.email})
     const data=req.body
-    console.log("req.body",data)
+//    console.log("req.body",data)
     try{ 
         const {paymentDetails,items,shippingFee,shippingAddress}=data
         const {firstName,lastName,streetNumber,secondLine,state,
@@ -34,10 +34,12 @@ const create=async (req,res,netx)=>{
             console.log(order,"orderCreated")
         await order.save()
         console.log("saved")
-            
     }
     catch{err=>console.log(err)}
-    res.json(data)
+    res.status(200).json({
+        "message":"order saved",
+        "newOrder":data }
+        )
 }
 const getOrder=async (req,res,next)=>{
     const user=await Users.findOne({email:req.userData.email})

@@ -29,7 +29,9 @@ const getUser=async (req,res,next)=>{
     const user=await Users.findOne({email:email})
    // console.log('req.body',user.userinfo);
     const resp={message:"retrieve user Information successfully",
-    userinfo:user.userinfo};
+        userinfo:user.userinfo,
+        favorList:user.favor
+        };
    // console.log(resp,"user")
     res.status(200).json(resp);
 }
@@ -78,12 +80,12 @@ const login=async (req,res,next) =>{
         const error =new Error ("gen token error");
         return next (error);
     }
-    const uname=loginUser.username
-    console.log(loginUser,"username",uname)
+    const userName=loginUser.username
+    console.log(loginUser,"username",userName)
     res.status(200).json({
-        message:"welcom back"+uname,
+        message:"welcom back"+userName,
         token:token,
-        username:uname,
+        username:userName,
         email:email
     })
 }
@@ -128,10 +130,11 @@ let hashPassowrd;
         res.json( "internal error,hash password fail,please try again");
         return next(error)
     }
-    const newUser=new User({
+    const newUser=new Users({
         username,email,password:hashPassowrd
     }) ;
-    try{  await newUser.save(); console.log("saved new user")
+    try{  await newUser.save(); 
+        console.log("saved new user")
     }
     catch(err){
         console.log("error",err)
@@ -178,9 +181,9 @@ const updateUser=async (req,res,next)=>{
   
     // }else{}
     Object.assign(user.userinfo,userinfo)
+    //join the new infomation
        // console.log(i, user[i],req.body.userinfo[i])
     ;
-   // console.log(user.userinfo,"after asign",user)
     await user.save();
     //console.log(user.username,"update username",userinfo.username)
     console.log(user)

@@ -1,6 +1,6 @@
 const mongoose=require('mongoose');
 const Schema=mongoose.Schema
-const cartSchema=new mongoose.Schema({
+const cartSchema=new Schema({
     //email from userModel  schema export as "Users"
     buyer:{type:Schema.Types.ObjectId,required:true,ref:"Users"},
     pid:{type:Schema.Types.ObjectId,required:true,ref:"Products"},
